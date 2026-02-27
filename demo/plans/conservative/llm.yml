@@ -1,0 +1,12 @@
+feature: "LLM response generation"
+scenarios:
+  - scenario: "Generate a greeting"
+    steps:
+      - step: "the LLM is configured"
+        params:
+          temperature: 0.1
+          max_tokens: 256
+      - step: 'the user says "hello"'
+      - step: "a response is generated within the token limit"
+        params:
+          response_timeout: 5.0
