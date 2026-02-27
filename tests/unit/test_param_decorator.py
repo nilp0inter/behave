@@ -43,6 +43,14 @@ class TestParamDef:
         assert pd.min == 1
         assert pd.max == 4096
 
+    def test_choices_defaults_to_none(self):
+        pd = ParamDef(name="x")
+        assert pd.choices is None
+
+    def test_stores_choices(self):
+        pd = ParamDef(name="model", type=str, choices=["gpt-4", "gpt-3.5"])
+        assert pd.choices == ["gpt-4", "gpt-3.5"]
+
 
 # ---------------------------------------------------------------------------
 # TEST: @param decorator
@@ -89,6 +97,17 @@ class TestParamDecorator:
         assert pd.type is float
         assert pd.min is None
         assert pd.max is None
+        assert pd.choices is None
+
+    def test_param_with_choices(self):
+        @param("model", type=str, choices=["gpt-4", "gpt-3.5"])
+        def step_impl(context):
+            pass
+
+        pd = step_impl._behave_params[0]
+        assert pd.name == "model"
+        assert pd.type is str
+        assert pd.choices == ["gpt-4", "gpt-3.5"]
 
     def test_param_above_step_decorator(self):
         """Simulates @param placed above @given by decorating in correct order."""
@@ -174,6 +193,22 @@ class TestValidateValue:
         pd = ParamDef(name="mode", type=str)
         result = validate_value(pd, "verbose")
         assert result == "verbose"
+
+    def test_accepts_value_in_choices(self):
+        pd = ParamDef(name="model", type=str, choices=["gpt-4", "gpt-3.5"])
+        result = validate_value(pd, "gpt-4")
+        assert result == "gpt-4"
+
+    def test_rejects_value_not_in_choices(self):
+        pd = ParamDef(name="model", type=str, choices=["gpt-4", "gpt-3.5"])
+        with pytest.raises(ParamValidationError, match="not in choices"):
+            validate_value(pd, "claude")
+
+    def test_choices_with_numeric_type(self):
+        pd = ParamDef(name="size", type=int, choices=[128, 256, 512])
+        assert validate_value(pd, 256) == 256
+        with pytest.raises(ParamValidationError, match="not in choices"):
+            validate_value(pd, 64)
 
 
 # ---------------------------------------------------------------------------

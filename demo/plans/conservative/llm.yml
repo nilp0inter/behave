@@ -10,3 +10,23 @@ scenarios:
       - step: "a response is generated within the token limit"
         params:
           response_timeout: 5.0
+
+  - scenario: "Generate with full options"
+    steps:
+      - step: "the LLM model is selected"
+        params:
+          model: "claude-haiku"
+          system_prompt: "You are a helpful assistant. Be concise."
+      - step: "the LLM is configured"
+        params:
+          temperature: 0.2
+          max_tokens: 512
+      - step: "safety filters are set"
+        params:
+          block_unsafe: true
+          log_prompts: true
+          safety_level: "strict"
+      - step: 'the user says "tell me a story"'
+      - step: "a response is generated within the token limit"
+        params:
+          response_timeout: 10.0

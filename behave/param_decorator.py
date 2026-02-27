@@ -34,20 +34,22 @@ class ParamDef:
     type: Callable = float
     min: Optional[Any] = None
     max: Optional[Any] = None
+    choices: Optional[list] = None
 
 
-def param(name, type=float, min=None, max=None):
+def param(name, type=float, min=None, max=None, choices=None):
     """Decorator that declares a configurable parameter on a step function.
 
     Multiple ``@param`` decorators can be stacked on the same function.
     Must be placed **above** the ``@given``/``@when``/``@then`` decorator.
 
-    :param name:  Parameter name (used as key in YAML config and context.params).
-    :param type:  Callable for type conversion (default: float).
-    :param min:   Optional minimum value (inclusive).
-    :param max:   Optional maximum value (inclusive).
+    :param name:    Parameter name (used as key in YAML config and context.params).
+    :param type:    Callable for type conversion (default: float).
+    :param min:     Optional minimum value (inclusive).
+    :param max:     Optional maximum value (inclusive).
+    :param choices: Optional list of allowed values.
     """
-    param_def = ParamDef(name=name, type=type, min=min, max=max)
+    param_def = ParamDef(name=name, type=type, min=min, max=max, choices=choices)
 
     def decorator(func):
         if not hasattr(func, "_behave_params"):
@@ -91,6 +93,14 @@ def validate_value(param_def, value):
                 name=param_def.name,
                 value=converted,
                 max=param_def.max,
+            )
+        )
+    if param_def.choices is not None and converted not in param_def.choices:
+        raise ParamValidationError(
+            "Parameter '{name}': value {value!r} not in choices {choices}".format(
+                name=param_def.name,
+                value=converted,
+                choices=param_def.choices,
             )
         )
     return converted

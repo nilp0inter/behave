@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>behave planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom range slider styling */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #2563eb;
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #2563eb;
+      cursor: pointer;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="elm-app"></div>
+  <script src="/elm.js"></script>
+  <script>
+    var app = Elm.Main.init({ node: document.getElementById("elm-app") });
+  </script>
+</body>
+</html>

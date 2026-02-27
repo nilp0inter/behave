@@ -11,6 +11,25 @@ def step_configure_llm(context):
     context.max_tokens = context.params.max_tokens
 
 
+@param("model", type=str, choices=["gpt-4o", "gpt-4o-mini", "claude-sonnet", "claude-haiku"])
+@param("system_prompt", type=str)
+@given("the LLM model is selected")
+def step_select_model(context):
+    print(f"  Model: {context.params.model}")
+    print(f"  System prompt: {context.params.system_prompt}")
+    context.model = context.params.model
+
+
+@param("block_unsafe", type=bool)
+@param("log_prompts", type=bool)
+@param("safety_level", type=str, choices=["strict", "moderate", "permissive"])
+@given("safety filters are set")
+def step_safety_filters(context):
+    print(f"  Block unsafe: {context.params.block_unsafe}")
+    print(f"  Log prompts: {context.params.log_prompts}")
+    print(f"  Safety level: {context.params.safety_level}")
+
+
 @when('the user says "{message}"')
 def step_user_says(context, message):
     print(f"  User says: {message}")

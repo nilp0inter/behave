@@ -325,6 +325,18 @@ def main(args=None):
     :param args:    Command-line args (or string) to use.
     :return: 0, if successful. Non-zero, in case of errors/failures.
     """
+    import shlex
+
+    if args is None:
+        args = sys.argv[1:]
+    if isinstance(args, str):
+        args = shlex.split(args)
+
+    # -- SUBCOMMAND DISPATCH:
+    if args and args[0] == "plan":
+        from behave.planner import run_plan
+        return run_plan(args[1:])
+
     try:
         config = Configuration(args)
         return run_behave(config)
