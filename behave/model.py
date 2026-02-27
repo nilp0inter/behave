@@ -1189,7 +1189,8 @@ class Scenario(TagAndStatusStatement, Replayable):
                     formatter.step(step)
 
         if not skip_scenario_untested:
-            for step in self.all_steps:
+            for step_index, step in enumerate(self.all_steps):
+                step._param_step_index = step_index
                 if run_steps:
                     if not step.run(runner):
                         # -- CASE: Failed or undefined step
@@ -1990,6 +1991,21 @@ class Step(BasicStatement, Replayable):
                 #  * Even EMPTY multiline text is available in context.
                 runner.context.text = self.text
                 runner.context.table = self.table
+
+                # -- INJECT STEP PARAMS (from YAML config):
+                from behave.param_config import StepParams
+                step_params = StepParams()
+                if hasattr(match.func, "_behave_params") and getattr(
+                    runner, "param_config", None
+                ):
+                    current_scenario = getattr(runner.context, "scenario", None)
+                    scenario_name = current_scenario.name if current_scenario else None
+                    step_index = getattr(self, "_param_step_index", 0)
+                    step_params = runner.param_config.get_step_params(
+                        runner.feature.filename, scenario_name, step_index
+                    )
+                runner.context.params = step_params
+
                 match.run(runner.context)
                 if self.status == Status.untested:
                     # -- NOTE: Executed step may have skipped scenario and itself.

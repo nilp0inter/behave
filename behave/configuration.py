@@ -428,6 +428,18 @@ Only tag-expressions v2 are supported (since: behave v1.4.0).
 
     (("--version",),
      dict(action="store_true", help="Show version.")),
+
+    (("--params-config-dir",),
+     dict(dest="params_config_dir", action="store", default=None,
+          metavar="DIR",
+          help="""Directory containing YAML parameter config files
+                  for steps decorated with @param.""")),
+
+    (("--generate-params-config",),
+     dict(dest="generate_params_config", action="store", default=None,
+          metavar="DIR",
+          help="""Generate skeleton YAML parameter config files into DIR
+                  and exit. Requires feature file paths as arguments.""")),
 ]
 
 
@@ -438,6 +450,7 @@ CONFIGFILE_EXCLUDED_OPTIONS = set([
     "tags_help", "lang_list", "lang_help",
     "version",
     "userdata_defines",
+    "generate_params_config",
 ])
 CONFIGFILE_EXCLUDED_ACTIONS = set(["store_false", "store_const"])
 

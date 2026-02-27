@@ -258,6 +258,7 @@ class TestConfigFileParser:
             "logging_level",
             "name",
             "outfiles",
+            "params_config_dir",
             "paths",
             "quiet",
             "runner",

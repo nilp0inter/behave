@@ -94,6 +94,9 @@ dependencies = [
 
     # -- SUPPORT: "pyproject.toml" (or: "behave.toml")
     "tomli>=1.1.0; python_version >=  '3.0' and python_version < '3.11'",
+
+    # -- SUPPORT: YAML parameter config files (@param decorator)
+    "PyYAML >= 6.0",
 ]
 
 [project.urls]

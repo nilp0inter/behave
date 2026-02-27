@@ -680,6 +680,7 @@ class ModelRunner:
         self.context = None
         self.feature = None
         self.hook_failures = 0
+        self.param_config = None
 
     @property
     def undefined_steps(self):
@@ -1101,6 +1102,17 @@ class Runner(ModelRunner):
         if "before_all" not in self.hooks:
             self.hooks["before_all"] = self.before_all_default_hook
 
+    def _any_steps_have_params(self):
+        """Check if any step in any feature has @param decorators."""
+        from behave.param_decorator import get_step_params
+        for feature in self.features:
+            for scenario in feature.walk_scenarios():
+                for step in scenario.steps:
+                    match = self.step_registry.find_match(step)
+                    if match and get_step_params(match.func):
+                        return True
+        return False
+
     def load_step_definitions(self, extra_step_paths=None):
         """
         Allow steps to import other stuff from the steps dir
@@ -1142,6 +1154,19 @@ class Runner(ModelRunner):
                              if not self.config.exclude(filename)]
         features = parse_features(feature_locations, language=self.config.lang)
         self.features.extend(features)
+
+        # -- CONFIGURATION PHASE: Load and validate parameter configs.
+        if self.step_registry is None:
+            self.step_registry = the_step_registry
+        if self.config.params_config_dir:
+            from behave.param_config import ParamConfig
+            self.param_config = ParamConfig(self.config.params_config_dir)
+            self.param_config.load_and_validate(self.features, self.step_registry)
+        elif self._any_steps_have_params():
+            from behave.exception import ConfigError
+            raise ConfigError(
+                "Steps use @param decorators but --params-config-dir was not provided."
+            )
 
         # -- STEP: Run all features.
         stream_openers = self.config.outputs

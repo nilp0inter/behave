@@ -26,6 +26,7 @@ from behave.api.step_matchers import (
     step_matcher
 )
 from behave.fixture import fixture, use_fixture
+from behave.param_decorator import param
 from behave.version import VERSION as __version__  # noqa: F401
 
 # pylint: disable=undefined-all-variable
@@ -34,6 +35,7 @@ __all__ = [
     "Given", "When", "Then", "Step",
     "use_default_step_matcher", "use_step_matcher", "register_type",
     "fixture", "use_fixture",
+    "param",
     # -- DEPRECATING:
     "step_matcher"
 ]

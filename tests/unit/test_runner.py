@@ -201,6 +201,8 @@ class TestRunWithPaths(unittest.TestCase):
         config.logging_format = None
         config.logging_datefmt = None
         config.environment_file = "environment.py"
+        config.params_config_dir = None
+        config.generate_params_config = None
         runner = Runner(config)
         runner.base_dir = "."
 
@@ -260,6 +262,7 @@ class TestRunWithPaths(unittest.TestCase):
         feature.tags = []
         feature.__iter__ = Mock(return_value=iter([]))
         feature.run.return_value = False
+        feature.walk_scenarios.return_value = []
         self.runner.feature_locations.return_value = feature_locations
         abspath.side_effect = lambda x: x.upper()
         self.config.lang = "fritz"

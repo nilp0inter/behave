@@ -109,6 +109,9 @@ def run_behave(config, runner_class=None):
         print_runners(config.runner_aliases)
         return 0
 
+    if config.generate_params_config:
+        return generate_params_config_command(config)
+
     # -- MAIN PART:
     runner = None
     failed = True
@@ -235,6 +238,50 @@ def print_formatters(file=None):
         print_("\nUNAVAILABLE FORMATTERS:")
         for name, formatter_error in problematic_formatters:
             print_(schema % (name, formatter_error))
+
+
+def generate_params_config_command(config):
+    """Generate skeleton YAML parameter config files and exit.
+
+    :param config: Configuration object.
+    :return: 0 on success, 1 on failure.
+    """
+    from behave.param_config import generate_params_yaml
+    from behave.runner_util import collect_feature_locations
+    from behave.parser import parse_features
+    from behave.step_registry import registry as step_registry
+
+    output_dir = config.generate_params_config
+    feature_locations = list(collect_feature_locations(config.paths))
+    if not feature_locations:
+        print("No feature files found.")
+        return 1
+
+    features = parse_features(feature_locations, language=config.lang)
+    if not features:
+        print("No features parsed.")
+        return 1
+
+    # -- NEED step definitions loaded for @param detection.
+    # Use a temporary runner to load step definitions.
+    runner = Runner(config)
+    with runner.path_manager:
+        runner.setup_paths()
+        runner.load_step_definitions()
+
+    generated = []
+    for feature in features:
+        output_path = generate_params_yaml(feature, step_registry, output_dir)
+        generated.append(output_path)
+        print("Generated: {0}".format(output_path))
+
+    if not generated:
+        print("No features with @param steps found.")
+    else:
+        print("\nGenerated {0} YAML config file(s) in: {1}".format(
+            len(generated), output_dir
+        ))
+    return 0
 
 
 def print_runners(runner_aliases, file=None):
